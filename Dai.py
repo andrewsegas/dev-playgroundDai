@@ -57,16 +57,21 @@ if prompt := st.chat_input():
         response = requests.request("POST", url, headers=headers, data=payload)
         if response.status_code == 200:
             jsonResponse = json.loads(response.text)
-            resposta = jsonResponse['response']
-            for element in jsonResponse['commands']:
-                if element['params'] is None:
-                    resposta += ' \<CMD:' + element['name'] + '\> '
-                else:
-                    resposta += ' \<CMD:' + element['name'] + ':' + element['params'] + '\> '
+            if jsonResponse['conversationMode'] == "CHAT":
+                resposta = jsonResponse['response']
+                for element in jsonResponse['commands']:
+                    if element['params'] is None:
+                        resposta += ' \<CMD:' + element['name'] + '\> '
+                    else:
+                        resposta += ' \<CMD:' + element['name'] + ':' + element['params'] + '\> '
+            elif jsonResponse['conversationMode'] == "LISTEN":
+                resposta = "Ouvindo a conversa..."
+            else:
+                resposta = "Ops, Conversa não atribuida a IA"
         else:
             resposta = "Ops, algo deu errado:" + response.text 
             
-        print(resposta)
+        #print(resposta)
         ## dai_api_key CHAVE DA APIIII
 
         stream_handler = StreamHandler(st.empty())
